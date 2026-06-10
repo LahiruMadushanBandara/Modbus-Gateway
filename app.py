@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Current state
 state = "IDLE"
 
-# ── Modbus connection to simulator (your laptop IP) ──
+# Modbus connection to simulator (your laptop IP)
 MODBUS_HOST = '192.168.1.50'  # ← Replace with your laptop IP
 MODBUS_PORT = 502
 SLAVE_ID    = 1
@@ -18,27 +18,27 @@ def get_modbus_client():
     client.connect()
     return client
 
-# ── Modbus bit operations ──
+# Modbus bit operations
 def set_bit(client, bit, value):
-    result = client.write_coil(bit, value, slave=SLAVE_ID)
+    result = client.write_coil(bit, value, unit=SLAVE_ID)
     if result.isError():
         print(f">>> ERROR writing bit {bit}")
     else:
         print(f">>> Modbus: bit {bit} set to {value} ✅")
 
 def read_bit(client, bit):
-    result = client.read_coils(bit, 1, slave=SLAVE_ID)
+    result = client.read_coils(bit, 1, unit=SLAVE_ID)
     if result.isError():
         print(f">>> ERROR reading bit {bit}")
         return False
     return result.bits[0]
 
-# ── Emergency Start Sequence ──
+# Emergency Start Sequence
 def emergency_start_sequence():
     global state
-    client = get_modbus_client()
 
     print("\n>>> [1] Setting MANUAL mode (MANUAL_LOC bit 3 = 1)")
+    client = get_modbus_client()
     set_bit(client, 3, True)
     time.sleep(1)
 
@@ -56,14 +56,15 @@ def emergency_start_sequence():
     print(">>> STATE: EMERGENCY_ACTIVE")
     client.close()
 
-# ── Emergency Stop Sequence ──
+# Emergency Stop Sequence
 def emergency_stop_sequence():
     global state
-    client = get_modbus_client()
 
     state = "WAITING"
     print("\n>>> Waiting 60 seconds before shutdown...")
     time.sleep(60)
+
+    client = get_modbus_client()
 
     print(">>> [1] Deactivating ALL SPEECH (bit 10 = 0)")
     set_bit(client, 10, False)
@@ -76,7 +77,7 @@ def emergency_stop_sequence():
     print(">>> STATE: IDLE - System back to AUTO ✅")
     client.close()
 
-# ── Flask API ──
+# Flask API
 @app.route('/event', methods=['POST'])
 def handle_event():
     global state
