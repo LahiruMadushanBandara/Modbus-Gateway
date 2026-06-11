@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 state = "IDLE"
 
-MODBUS_HOST = '192.168.1.50'
-MODBUS_PORT = 502
+MODBUS_HOST = '127.0.0.1'
+MODBUS_PORT = 5020
 
 def get_modbus_client():
     client = ModbusTcpClient(host=MODBUS_HOST, port=MODBUS_PORT)
@@ -37,12 +37,7 @@ def emergency_start_sequence():
     set_bit(client, 3, True)
     time.sleep(1)
 
-    print(">>> [2] Waiting for CONTROL_EN bit 5...")
-    for _ in range(10):
-        if read_bit(client, 5):
-            print(">>> [2] CONTROL_EN confirmed")
-            break
-        time.sleep(1)
+    print(">>> [2] Skipping CONTROL_EN (simulator mode)")
 
     print(">>> [3] Activating ALL SPEECH bit 10 = 1")
     set_bit(client, 10, True)
@@ -74,9 +69,12 @@ def emergency_stop_sequence():
 @app.route('/event', methods=['POST'])
 def handle_event():
     global state
-    data = request.json
-    event = data.get('event')
+    data = request.get_json(force=True, silent=True)
 
+    if not data:
+        return jsonify({'error': 'Invalid JSON'}), 400
+
+    event = data.get('event')
     print(">>> Event received: " + str(event))
 
     if event == 'EMERGENCY_START':
