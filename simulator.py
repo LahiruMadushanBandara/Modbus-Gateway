@@ -1,5 +1,6 @@
 from pymodbus.server import StartTcpServer
-from pymodbus.datastore import ModbusSlaveContext, ModbusServerContext
+from pymodbus.datastore import ModbusSlaveContext
+from pymodbus.datastore import ModbusServerContext
 from pymodbus.datastore import ModbusSequentialDataBlock
 
 import logging
@@ -7,10 +8,10 @@ logging.basicConfig()
 log = logging.getLogger()
 log.setLevel(logging.DEBUG)
 
-# Create datastore with 100 coils all set to 0
 store = ModbusSlaveContext(
     co=ModbusSequentialDataBlock(0, [0]*100)
 )
+
 context = ModbusServerContext(slaves=store, single=True)
 
 print(">>> Modbus Simulator running on port 5020...")
