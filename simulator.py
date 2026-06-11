@@ -1,15 +1,15 @@
 from pymodbus.server import StartTcpServer
 from pymodbus.datastore import ModbusServerContext
-from pymodbus.datastore import ModbusDeviceContext
-from pymodbus.datastore import ModbusSequentialDataBlock
+from pymodbus.datastore import ModbusSimulatorContext
 
-store = ModbusDeviceContext(
-    di=ModbusSequentialDataBlock(1, [0]*100),
-    co=ModbusSequentialDataBlock(1, [0]*100),
-    hr=ModbusSequentialDataBlock(1, [0]*100),
-    ir=ModbusSequentialDataBlock(1, [0]*100),
-)
+device = {
+    "co size": 100,
+    "di size": 100,
+    "hr size": 100,
+    "ir size": 100,
+}
 
+store = ModbusSimulatorContext(device, None)
 context = ModbusServerContext(slaves=store, single=True)
 
 print(">>> Modbus Simulator running on port 5020...")
