@@ -9,22 +9,21 @@ state = "IDLE"
 
 MODBUS_HOST = '192.168.1.50'
 MODBUS_PORT = 502
-SLAVE_ID = 1
 
 def get_modbus_client():
-    client = ModbusTcpClient(MODBUS_HOST, port=MODBUS_PORT)
+    client = ModbusTcpClient(host=MODBUS_HOST, port=MODBUS_PORT)
     client.connect()
     return client
 
 def set_bit(client, bit, value):
-    result = client.write_coil(bit, value, unit=SLAVE_ID)
+    result = client.write_coil(bit, value)
     if result.isError():
         print(">>> ERROR writing bit " + str(bit))
     else:
         print(">>> Modbus: bit " + str(bit) + " set to " + str(value))
 
 def read_bit(client, bit):
-    result = client.read_coils(bit, 1, unit=SLAVE_ID)
+    result = client.read_coils(bit, 1)
     if result.isError():
         print(">>> ERROR reading bit " + str(bit))
         return False
